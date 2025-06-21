@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      GAR_LOCATION: ${{ secrets.GAR_LOCATION }}
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      GAR_REPOSITORY: ${{ secrets.GAR_REPOSITORY }}
+      API_IMAGE: ${{ secrets.API_IMAGE_NAME || 'api' }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      LAMBDA_REPOSITORY: ${{ secrets.LAMBDA_REPOSITORY }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Configure Google Docker auth
+        run: gcloud auth configure-docker $GAR_LOCATION-docker.pkg.dev --quiet
+
+      - name: Build and Push API Docker image
+        run: |
+          docker build -t $GAR_LOCATION-docker.pkg.dev/$GCP_PROJECT/$GAR_REPOSITORY/$API_IMAGE:${{ github.sha }} ./api
+          docker push $GAR_LOCATION-docker.pkg.dev/$GCP_PROJECT/$GAR_REPOSITORY/$API_IMAGE:${{ github.sha }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: $AWS_REGION
+
+      - name: Login to Amazon ECR
+        run: aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - name: Build and Push Lambda Docker image
+        run: |
+          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$LAMBDA_REPOSITORY:${{ github.sha }} ./lambda
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$LAMBDA_REPOSITORY:${{ github.sha }}
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: |
+          terraform -chdir=infra init
+          terraform -chdir=infra apply -auto-approve
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
