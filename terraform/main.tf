@@ -30,6 +30,7 @@ module "add_product_lambda" {
   lambda_role_arn = var.lambda_role_arn
 }
 
+
 module "get_products_lambda" {
   source          = "./modules/lambdas"
   lambda_name     = "get_products_lambda"
@@ -62,6 +63,12 @@ module "cloud_run" {
   image        = var.cloud_run_image
   repo_name    = var.artifact_repo_name
 }
+
+module "lambda_role" {
+  source = "./modules/iam_lambda_role"
+}
+
+
 
 
 
