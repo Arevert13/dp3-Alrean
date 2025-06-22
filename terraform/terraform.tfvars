@@ -1,7 +1,7 @@
 aws_region      = "eu-central-1"
 
 
-gcp_project     = "dp3-proyecto-alex"       # tu proyecto de GCP
+gcp_project     = "ordinal-thinker-452918-q2"       # tu proyecto de GCP
 gcp_region      = "europe-west1"
 
 lambda_role_arn = "arn:aws:iam::719201730191:role/lambda_exec_role"
@@ -15,7 +15,7 @@ db_username = "postgres"
 db_password = "tu-password-segura"
 
 cloud_run_service_name = "flask-app"
-cloud_run_image        = "europe-west1-docker.pkg.dev/TU_PROYECTO/artifacts-repo/flask-app"
+cloud_run_image        = "europe-west1-docker.pkg.dev/ordinal-thinker-452918-q2/artifacts-repo/flask-app"
 
 artifact_repo_name = "artifacts-repo"
 

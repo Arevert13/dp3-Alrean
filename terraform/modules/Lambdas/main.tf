@@ -1,7 +1,10 @@
 locals {
-  zip_name = "${var.lambda_name}.zip"
-  zip_path = "${path.module}/../../../${var.code_path}/${local.zip_name}"
+  zip_name        = "${var.lambda_name}.zip"
+  lambda_folder   = "${path.module}/../../../${var.code_path}"
+  zip_path        = "${path.module}/../../../${var.code_path}/${local.zip_name}"
 }
+
+
 
 resource "null_resource" "zip_lambda" {
   provisioner "local-exec" {
@@ -15,7 +18,7 @@ resource "null_resource" "zip_lambda" {
 
 resource "aws_lambda_function" "this" {
   function_name    = var.lambda_name
-  role             = var.lambda_role_arn
+  role = var.lambda_role_arn
   handler          = var.handler
   runtime          = "python3.9"
   filename         = local.zip_path

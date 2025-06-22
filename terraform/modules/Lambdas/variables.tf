@@ -13,8 +13,9 @@ variable "handler" {
   type        = string
 }
 
+
 variable "lambda_role_arn" {
-  description = "ARN del rol IAM que puede ejecutar la Lambda"
+  description = "ARN del rol IAM que puede asumir la Lambda"
   type        = string
 }
 
