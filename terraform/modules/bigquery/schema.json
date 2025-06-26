@@ -1,9 +1,0 @@
-[
-    { "name": "id", "type": "INTEGER", "mode": "REQUIRED" },
-    { "name": "nombre", "type": "STRING", "mode": "REQUIRED" },
-    { "name": "descripcion", "type": "STRING", "mode": "NULLABLE" },
-    { "name": "precio", "type": "FLOAT", "mode": "REQUIRED" },
-    { "name": "stock", "type": "INTEGER", "mode": "REQUIRED" },
-    { "name": "imagen", "type": "STRING", "mode": "NULLABLE" }
-  ]
-  
